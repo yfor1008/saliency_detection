@@ -58,11 +58,11 @@ colors_g = fix(mod(s_idx-1, w(1)) / w(2));
 colors_b = mod(s_idx-1, w(2));
 colors = [colors_r, colors_g, colors_b];
 
-% 显示保留颜色
+% 显示量化后颜色
 if show
-    figure('NumberTitle', 'off', 'Name', '量化后保留颜色');
-    bfig = bar(shist(1:max_num));
-    for i = 1 : max_num
+    figure('NumberTitle', 'off', 'Name', '量化后颜色');
+    bfig = bar(shist(1:real_color_num));
+    for i = 1 : real_color_num
         color = colors(i, :)/(quan-1);
         bfig.FaceColor = 'flat';
         bfig.CData(i, :) = color;
@@ -73,7 +73,33 @@ if show
     set(gca, 'FontName', 'Helvetica');
     set(gca, 'FontSize', 13);
     set(gca, 'linewidth', 1.3);
+
+    ax = gca;
+    ax.Units = 'pixels';
+    pos = ax.Position;
+    rect = [0, 0, pos(3), pos(4)];
+    fig_rgb = getframe(ax, rect);
+    fig_rgb = fig_rgb.cdata;
+    imwrite(fig_rgb, './src/quan_color.jpg');
+    
 end
+
+% % 显示保留颜色
+% if show
+%     figure('NumberTitle', 'off', 'Name', '量化后保留颜色');
+%     bfig = bar(shist(1:max_num));
+%     for i = 1 : max_num
+%         color = colors(i, :)/(quan-1);
+%         bfig.FaceColor = 'flat';
+%         bfig.CData(i, :) = color;
+%     end
+%     axis off
+%     set(gcf, 'color', 'white');
+%     set(gca, 'color', 'white');
+%     set(gca, 'FontName', 'Helvetica');
+%     set(gca, 'FontSize', 13);
+%     set(gca, 'linewidth', 1.3);
+% end
 
 % 丢弃很少出现的颜色, 使用相似颜色替代
 color_idx = 1 : color_num; % 重新对颜色进行标号, 方便计算
@@ -115,6 +141,14 @@ if show
     set(gca, 'FontName', 'Helvetica');
     set(gca, 'FontSize', 13);
     set(gca, 'linewidth', 1.3);
+
+    ax = gca;
+    ax.Units = 'pixels';
+    pos = ax.Position;
+    rect = [0, 0, pos(3), pos(4)];
+    fig_rgb = getframe(ax, rect);
+    fig_rgb = fig_rgb.cdata;
+    imwrite(fig_rgb, './src/mean_color.jpg');
 end
 
 % rgb2lab
@@ -150,6 +184,14 @@ if show
     set(gca, 'FontName', 'Helvetica');
     set(gca, 'FontSize', 13);
     set(gca, 'linewidth', 1.3);
+
+    ax = gca;
+    ax.Units = 'pixels';
+    pos = ax.Position;
+    rect = [0, 0, pos(3), pos(4)];
+    fig_rgb = getframe(ax, rect);
+    fig_rgb = fig_rgb.cdata;
+    imwrite(fig_rgb, './src/color_saliency.jpg');
 end
 
 % 颜色显著性平滑
@@ -191,13 +233,21 @@ if show
     set(gca, 'FontName', 'Helvetica');
     set(gca, 'FontSize', 13);
     set(gca, 'linewidth', 1.3);
+
+    ax = gca;
+    ax.Units = 'pixels';
+    pos = ax.Position;
+    rect = [0, 0, pos(3), pos(4)];
+    fig_rgb = getframe(ax, rect);
+    fig_rgb = fig_rgb.cdata;
+    imwrite(fig_rgb, './src/color_smooth_saliency.jpg');
 end
 
 % 生成显著性图像
 salient = zeros(size(pallet));
 for y = 1 : size(im, 1)
     for x = 1 : size(im, 2)
-        quan_color = pallet(y, x); % 每个像素对应的量化后的颜色
+        quan_color = pallet(y, x) + 1; % 每个像素对应的量化后的颜色
         idx = c_idx(quan_color); % 对应排序后index
         idx = color_idx(idx); % 颜色重新标号后的index
         salient(y, x) = new_sal(idx);
@@ -212,6 +262,14 @@ if show
     set(gca, 'FontName', 'Helvetica');
     set(gca, 'FontSize', 13);
     set(gca, 'linewidth', 1.3);
+
+    ax = gca;
+    ax.Units = 'pixels';
+    pos = ax.Position;
+    rect = [0, 0, pos(3), pos(4)];
+    fig_rgb = getframe(ax, rect);
+    fig_rgb = fig_rgb.cdata;
+    imwrite(fig_rgb, './src/image_saliency.jpg');
 end
 
 end
