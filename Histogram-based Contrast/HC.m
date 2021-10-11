@@ -1,4 +1,4 @@
-function salient = HC(rgb, quan, ratio, delta, show)
+function [salient, rgb_quan, color_sal_1, color_sum_1] = HC(rgb, quan, ratio, delta, show)
 % HC - Histogram-based Contrast
 %
 % input:
@@ -9,6 +9,9 @@ function salient = HC(rgb, quan, ratio, delta, show)
 %   - show: bool, 是否显示中间处理过程
 % output:
 %   - salient: H*W, [0,1], 显著性图像, 灰度图像
+%   - rgb_quan: H*W*3, 量化后图像
+%   - color_sal_1: max_num*1, 颜色显著性, max_num 为保留颜色数量
+%   - color_sum_1: max_num*1, 显著性对应的颜色
 %
 % doc:
 %   - Global contrast based salient region detection, 2011
@@ -151,6 +154,23 @@ if show
     imwrite(fig_rgb, './src/mean_color.jpg');
 end
 
+rgb_quan = im;
+for y = 1 : size(im, 1)
+    for x = 1 : size(im, 2)
+        quan_color = pallet(y, x) + 1; % 每个像素对应的量化后的颜色
+        idx = c_idx(quan_color); % 对应排序后index
+        idx = color_idx(idx); % 颜色重新标号后的index
+        rgb_quan(y,x,:) = color_sum(idx, 1, :);
+    end
+end
+
+% 显示量化后的图像
+if show
+    figure('NumberTitle', 'off', 'Name', '量化图像');
+    imshow(rgb_quan)
+    imwrite(rgb_quan, './src/quan_image.jpg');
+end
+
 % rgb2lab
 Lab = squeeze(rgb2lab(color_sum));
 
@@ -168,9 +188,14 @@ for i = 1 : max_num
     idx_ij(i, :) = i_i;
 end
 
+[color_sal_1, sc_idx] = sort(color_sal, 'descend');
+color_sum_1 = color_sum(1:max_num, 1, :);
+for i = 1 : max_num
+    color_sum_1(i, :) = color_sum(sc_idx(i), :);
+end
+
 % 显示颜色显著性
 if show
-    [color_sal_1, sc_idx] = sort(color_sal, 'descend');
     figure('NumberTitle', 'off', 'Name', '颜色显著性');
     bfig2 = bar(color_sal_1);
     for i = 1 : max_num
