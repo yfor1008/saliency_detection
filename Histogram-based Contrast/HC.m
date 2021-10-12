@@ -1,4 +1,4 @@
-function [salient, rgb_quan, color_sal_1, color_sum_1] = HC(rgb, quan, ratio, delta, show)
+function [salient, rgb_quan, new_sal_1, color_sum_1] = HC(rgb, quan, ratio, delta, show)
 % HC - Histogram-based Contrast
 %
 % input:
@@ -10,7 +10,7 @@ function [salient, rgb_quan, color_sal_1, color_sum_1] = HC(rgb, quan, ratio, de
 % output:
 %   - salient: H*W, [0,1], 显著性图像, 灰度图像
 %   - rgb_quan: H*W*3, 量化后图像
-%   - color_sal_1: max_num*1, 颜色显著性, max_num 为保留颜色数量
+%   - new_sal_1: max_num*1, 平滑后颜色显著性, max_num 为保留颜色数量
 %   - color_sum_1: max_num*1, 显著性对应的颜色
 %
 % doc:
@@ -188,15 +188,10 @@ for i = 1 : max_num
     idx_ij(i, :) = i_i;
 end
 
-[color_sal_1, sc_idx] = sort(color_sal, 'descend');
-color_sum_1 = color_sum(1:max_num, 1, :);
-for i = 1 : max_num
-    color_sum_1(i, :) = color_sum(sc_idx(i), :);
-end
-
 % 显示颜色显著性
 if show
     figure('NumberTitle', 'off', 'Name', '颜色显著性');
+    [color_sal_1, sc_idx] = sort(color_sal, 'descend');
     bfig2 = bar(color_sal_1);
     for i = 1 : max_num
         color = color_sum(sc_idx(i), :);
@@ -242,9 +237,14 @@ for i = 1 : max_num
 end
 new_sal = new_sal / max(new_sal); % 对结果有一定的影响
 
+[new_sal_1, sc_idx] = sort(new_sal, 'descend');
+color_sum_1 = color_sum(1:max_num, 1, :);
+for i = 1 : max_num
+    color_sum_1(i, :) = color_sum(sc_idx(i), :);
+end
+
 % 显示平滑后颜色显著性
 if show
-    [new_sal_1, sc_idx] = sort(new_sal, 'descend');
     figure('NumberTitle', 'off', 'Name', '平滑后颜色显著性');
     bfig3 = bar(new_sal_1);
     for i = 1 : max_num
